@@ -1,6 +1,6 @@
-import java.time.LocalDateTime;
+//import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Scanner;
+//import java.util.Scanner;
 
 public class Computer {
 
@@ -12,7 +12,7 @@ public class Computer {
     private double maxStorageKB;   
     private double usedStorageKB; 
     
-    private ArrayList<FileData> storedFiles;
+    public ArrayList<FileData> storedFiles; //change back to private later, for debugging rn
     private ArrayList<String> supported_file_types; 
 
     // filedata class which stores metadata 
@@ -65,9 +65,9 @@ public class Computer {
             lastModified = modifyDate;
 
             if (text.isEmpty()) {
-                this.sizeKB = 0.0;
+                sizeKB = 0.0;
             } else {
-                this.sizeKB = text.length() / 1024.0;
+                sizeKB = text.length() / 1024.0;
             }
         }
         
@@ -136,7 +136,18 @@ public class Computer {
         }
 
         // checks if there are duplicates
+        // eric pls write this part im too friggin lazy
 
-        return;
+        //return;
     }
+
+    // eric just ignore writing the main method for now, finish the methods, this is just here to test methods
+    public static void main(String[] args) {
+        Computer myPC = new Computer("lucascomputer", "testos");
+        myPC.togglePower();
+        System.out.println(myPC.isPoweredOn());
+        
+
+    }
+
 }
