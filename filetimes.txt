@@ -1,2 +1,1 @@
-# When each file was accepted onto this computer.
-# One record per line: the file name, a vertical bar, then the time.
+# store file creation date here
