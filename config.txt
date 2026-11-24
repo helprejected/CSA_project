@@ -1,0 +1,5 @@
+osName=testOs
+computerName=EricLucas
+maxStorageKB=25600
+writableFileTypes=txt
+readableFileTypes=txt,md,json,csv,mp3,wav,mp4,jpg,png,gif,svg,html,css,js

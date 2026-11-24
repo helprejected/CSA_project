@@ -1,42 +1,29 @@
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-/**
- * The terminal of the simulated computer.
- *
- * This class only talks to the user: it reads a line, works out which command
- * it is, and calls the matching method on the Computer. All of the rules
- * (storage limits, battery, file types) live in Computer.java.
- */
 public class Main {
 
     private static Computer computer;
-    private static final Scanner INPUT = new Scanner(System.in);
+    private static Scanner input = new Scanner(System.in);
 
     public static void main(String[] args) {
-        Computer.Settings settings = Computer.Settings.load("config.json");
+        Computer.Settings settings = Computer.Settings.load("config.txt");
         computer = new Computer(settings);
 
-        printBanner();
+        printASCII();
         computer.togglePower();
         run();
     }
 
-    /** Reads commands until the user exits or the battery runs out. */
-    private static void run() {
+    //reads commands until the user exits
+    public static void run() {
         boolean running = true;
 
         while (running) {
-            if (computer.checkBatteryStatus() <= 0) {
-                System.out.println("Battery empty - shutting down...");
-                computer.togglePower();
-                break;
-            }
-
             System.out.print("> ");
-            String line = INPUT.nextLine().trim();
+
+            String line = input.nextLine();
 
             if (line.isEmpty()) {
                 continue;
@@ -45,65 +32,143 @@ public class Main {
         }
     }
 
-    /** Runs one command. Returns false when the program should stop. */
-    private static boolean handle(String line) {
+    //runs one command, returns false when the program should stop
+    public static boolean handle(String line) {
         String command = line;
         String argument = "";
 
         int space = line.indexOf(' ');
+
         if (space != -1) {
             command = line.substring(0, space);
             argument = line.substring(space + 1).trim();
         }
+
         command = command.toLowerCase();
 
         if (command.equals("help")) {
             printHelp();
-        } else if (command.equals("status")) {
+        }
+
+        else if (command.equals("status")) {
             computer.printComputerReport();
-        } else if (command.equals("ls")) {
+        }
+
+        else if (command.equals("list")) {
             printFiles();
-        } else if (command.equals("read")) {
+        }
+
+        else if (command.equals("create")) {
             if (argument.isEmpty()) {
-                System.out.println("Usage: read <file name>");
+                System.out.println("usage: create <name>.txt");
+            } else {
+                computer.createFile(argument);
+            }
+        }
+
+        else if (command.equals("write")) {
+            if (argument.isEmpty()) {
+                System.out.println("usage: write <name>.txt");
+            } else if (computer.writeFile(argument)) {
+                System.out.println("Edit and save the file in your editor, then press Enter here when you are done.");
+
+                if (input.hasNextLine()) {
+                    input.nextLine();
+                }
+                computer.saveModifiedDate(argument);
+            }
+        }
+
+        else if (command.equals("read")) {
+            if (argument.isEmpty()) {
+                System.out.println("usage: read <file name>");
             } else {
                 String content = computer.readFile(argument);
+
                 if (content != null) {
                     System.out.println(content);
                 }
             }
-        } else if (command.equals("exit")) {
+        }
+
+        else if (command.equals("delete")) {
+            if (argument.isEmpty()) {
+                System.out.println("usage: delete <file name>");
+            } else {
+                computer.deleteFile(argument);
+            }
+        }
+
+        else if (command.equals("inbox")) {
+            printInbox();
+        }
+
+        else if (command.equals("check")) {
+            if (argument.isEmpty()) {
+                System.out.println("usage: check <file name>");
+            } else {
+                computer.checkImport(argument);
+            }
+        }
+
+        else if (command.equals("import")) {
+            if (argument.isEmpty()) {
+                System.out.println("usage: import <file name>");
+            } else {
+                computer.importFile(argument);
+            }
+        }
+
+        else if (command.equals("discard")) {
+            if (argument.isEmpty()) {
+                System.out.println("usage: discard <file name>");
+            } else {
+                computer.discardStaged(argument);
+            }
+        }
+
+        else if (command.equals("exit")) {
             computer.togglePower();
             return false;
-        } else {
+        }
+
+        else {
             System.out.println("Unknown command. Type 'help' for a list.");
         }
 
         return true;
     }
 
-    private static void printBanner() {
-        File art = new File("Assets/ASCII_art.txt");
+    public static void printASCII() {
+        try {
+            Scanner reader = new Scanner(new File("Assets/ASCII_art.txt"));
 
-        try (Scanner reader = new Scanner(art)) {
             while (reader.hasNextLine()) {
                 System.out.println(reader.nextLine());
             }
-        } catch (FileNotFoundException e) {
-            System.out.println("MiniOS - a tiny simulated computer");
+            reader.close();
+        } catch (Exception e) {
+            System.out.println("[placeholder starting banner here]");
         }
     }
 
-    private static void printHelp() {
+    public static void printHelp() {
         System.out.println("Commands:");
         System.out.println("  help          - show this list");
         System.out.println("  status        - full report of the computer");
-        System.out.println("  ls            - list the files in Storage");
-        System.out.println("  read <file>   - print the content of a file");
+        System.out.println("  list          - list the files in the storage");
+        System.out.println("  create <file> - make a new empty .txt file, no need to add an extension");
+        System.out.println("  write <file>  - open a file in your editor to edit it");
+        System.out.println("  read <file>   - print text files, open other files");
+        System.out.println("  delete <file> - remove a file from Storage");
+        System.out.println("  inbox         - list the files waiting in staging");
+        System.out.println("  check <file>  - test if a staged file fits the requirements");
+        System.out.println("  import <file> - move a staged file into storage");
+        System.out.println("  discard <file> - delete a staged file");
         System.out.println("  exit          - shut the computer down");
     }
 
-    private static void printFiles() {
+    public static void printFiles() {
         ArrayList<Computer.FileData> files = computer.listAllFiles();
 
         if (files.isEmpty()) {
@@ -112,7 +177,24 @@ public class Main {
         }
 
         for (Computer.FileData file : files) {
-            System.out.println("  " + file.fileProperties());
+            System.out.println("  " + file.getFullName());
+        }
+    }
+
+    public static void printInbox() {
+        ArrayList<Computer.FileData> files = computer.listStaging();
+
+        if (files.isEmpty()) {
+            System.out.println("(Validation is empty - drag a file into that folder first)");
+            return;
+        }
+
+        for (Computer.FileData file : files) {
+            String problem = computer.importError(file.getFullName());
+            String status = (problem == null) ? "ready to import" : problem;
+
+            System.out.println("  " + file.getFullName()
+                    + "  (" + String.format("%.2f", file.getSizeKB()) + " KB)  -> " + status);
         }
     }
 }
