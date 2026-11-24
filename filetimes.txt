@@ -1,2 +1,0 @@
-# When each file was added to this computer and when it was last changed.
-# One record per line: the file name, the added date, then the modified date.

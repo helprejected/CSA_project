@@ -10,7 +10,8 @@ import java.util.Scanner;
 public class Computer {
 
     private static final String STORAGE_DIR = "Storage";
-    private static final String STAGING_DIR = "Validation";
+    //the staging folder sits one level above the program so files are easy to drop in
+    private static final String STAGING_DIR = "../Validation";
 
     //dictionary to store the added and modified dates of the files since no way to access the creation date through system
     private static final String DICT_FILE = "filetimes.txt";

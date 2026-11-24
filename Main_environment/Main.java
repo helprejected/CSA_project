@@ -21,7 +21,7 @@ public class Main {
         boolean running = true;
 
         while (running) {
-            System.out.print("> ");
+            System.out.print("\n> ");
 
             String line = input.nextLine();
 
@@ -86,7 +86,9 @@ public class Main {
                 String content = computer.readFile(argument);
 
                 if (content != null) {
+                    System.out.println("====================================");
                     System.out.println(content);
+                    System.out.println("====================================");
                 }
             }
         }
