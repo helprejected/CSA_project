@@ -2,7 +2,6 @@
   "osName": "MiniOS",
   "computerName": "my-computer",
   "maxStorageKB": 25600.0,
-  "batteryDrainSecondsPerPercent": 10,
   "writableFileTypes": "txt",
   "readableFileTypes": "txt,md,log,json,csv,mp3,wav"
 }

@@ -1,16 +1,14 @@
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
+import java.time.LocalDateTime; //changes
 import java.util.Scanner;
 
 public class Computer {
 
     private static final String STORAGE_DIR = "Storage";
     private static final String STAGING_DIR = "Validation";
-    private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm";
 
     //dictionary to store the creation date of the files since no way to access it through system
     private static final String DICT_FILE = "filetimes.txt";
@@ -25,20 +23,21 @@ public class Computer {
         private String osName;
         private String computerName;
         private double maxStorageKB;
-        private int batteryDrainSecondsPerPercent;
         private ArrayList<String> writableFileTypes;
         private ArrayList<String> readableFileTypes;
 
+        //default settings
+
         public Settings() {
-            osName = "MiniOS";
+            osName = "test-os";
             computerName = "my-computer";
-            maxStorageKB = 25600.0;                 // 25 MB
-            batteryDrainSecondsPerPercent = 10;
+            maxStorageKB = 25600.0;              
             writableFileTypes = splitTypes("txt");
             readableFileTypes = splitTypes("txt,md,log,json,csv,mp3,wav");
         }
 
-        //load configs from config file
+
+        //load configs from config file --> constructor
         public static Settings load(String configPath) {
             Settings settings = new Settings();
             File configFile = new File(configPath);
@@ -58,6 +57,7 @@ public class Computer {
                     }
 
                     int colon = line.indexOf(':');
+
                     if (colon == -1) {
                         continue;
                     }
@@ -75,7 +75,7 @@ public class Computer {
             return settings;
         }
 
-        //removes quotes and the trailing comma from one value
+        //removes quotes and the trailing comma from one value in the settings used to extract data
         public static String clean(String text) {
             text = text.replace("\"", "").trim();
 
@@ -87,22 +87,24 @@ public class Computer {
 
         public void apply(String key, String value) {
             try {
-                if (key.equals("osName")) {
-                    osName = value;
-                } else if (key.equals("computerName")) {
+                if (key.equals("osName")) {osName = value;}
+                    
+                else if (key.equals("computerName")) {
                     computerName = value;
-                } else if (key.equals("maxStorageKB")) {
+                }
+                    
+                else if (key.equals("maxStorageKB")) {
                     maxStorageKB = Double.parseDouble(value);
-                } else if (key.equals("batteryDrainSecondsPerPercent")) {
-                    batteryDrainSecondsPerPercent = Integer.parseInt(value);
-                    if (batteryDrainSecondsPerPercent < 1) {
-                        batteryDrainSecondsPerPercent = 1;
-                    }
-                } else if (key.equals("writableFileTypes")) {
+                }
+                    
+                else if (key.equals("writableFileTypes")) {
                     writableFileTypes = splitTypes(value);
-                } else if (key.equals("readableFileTypes")) {
+                }
+                    
+                else if (key.equals("readableFileTypes")) {
                     readableFileTypes = splitTypes(value);
                 }
+
             } catch (NumberFormatException e) {
                 // not a number where a number was expected - keep the default
             }
@@ -121,29 +123,18 @@ public class Computer {
             return types;
         }
 
-        public String getOsName() {
-            return osName;
-        }
+        //basic getters for settings
+        public String getOsName() {return osName;}
+        public String getComputerName() {return computerName;}
+        public double getMaxStorageKB() {return maxStorageKB;}
+        public ArrayList<String> getWritableFileTypes() {return writableFileTypes;}
+        public ArrayList<String> getReadableFileTypes() {return readableFileTypes;}
+        //..................
 
-        public String getComputerName() {
-            return computerName;
-        }
-
-        public double getMaxStorageKB() {
-            return maxStorageKB;
-        }
-
-        public int getBatteryDrainSecondsPerPercent() {
-            return batteryDrainSecondsPerPercent;
-        }
-
-        public ArrayList<String> getWritableFileTypes() {
-            return writableFileTypes;
-        }
-
-        public ArrayList<String> getReadableFileTypes() {
-            return readableFileTypes;
-        }
     }
+
+
+}
+
 
     // filedata here
