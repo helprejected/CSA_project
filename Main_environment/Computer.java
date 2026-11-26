@@ -6,12 +6,11 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Scanner;
-
 public class Computer {
 
-    private static final String STORAGE_DIR = "Storage";
+    private static final String STORAGE_DIR = "Disk";
     //the staging folder sits one level above the program so files are easy to drop in
-    private static final String STAGING_DIR = "../Validation";
+    private static final String STAGING_DIR = "../Import";
 
     //dictionary to store the added and modified dates of the files since no way to access the creation date through system
     private static final String DICT_FILE = "filetimes.txt";
@@ -19,6 +18,18 @@ public class Computer {
 
     //supported text type that is not displayed in binary like for example mp3 files, since forcefully opening up mp3 files will just give you raw data
     private static final String[] TEXT_TYPES = { "txt", "md", "csv", "json" };
+
+    //ANSI color escape sequence for coloring the terminal
+    // exit sequence 001b works for PS
+    // Coloring:
+    // Red -> errors
+    // Yellow -> startup / close
+    // CYAN -> ASCII banner
+    private static final String ANSI_RED = "\u001b[31m";
+    private static final String ANSI_CYAN = "\u001b[36m";
+    private static final String ANSI_YELLOW = "\u001b[33m";
+    private static final String ANSI_RESET = "\u001b[0m";
+
 
     //Settings from the config files below here
 
@@ -101,7 +112,7 @@ public class Computer {
                 }
 
             } catch (NumberFormatException e) {
-                System.out.println("max storage kb must be a number");
+                System.out.println(ANSI_RED + "Max storage kb must be a number" + ANSI_RESET);
             }
         }
 
@@ -197,10 +208,10 @@ public class Computer {
     public void togglePower() {
         if (isPoweredOn) {
             isPoweredOn = false;
-            System.out.println("Shutting down...");
+            System.out.println(ANSI_YELLOW + "Shutting down..." + ANSI_RESET);
         } else {
             isPoweredOn = true;
-            System.out.println("Booting up " + settings.getComputerName() + "...");
+            System.out.println(ANSI_YELLOW + "Booting up " + settings.getComputerName() + "..." + ANSI_RESET);
         }
     }
 
@@ -257,7 +268,7 @@ public class Computer {
 
             reader.close();
         } catch (Exception e) {
-            System.out.println("no dictionary yet");
+            System.out.println(ANSI_RED + "No dictionary yet" + ANSI_RESET);
         }
         return found;
     }
@@ -279,7 +290,7 @@ public class Computer {
 
             reader.close();
         } catch (Exception e) {
-            System.out.println("no dictionary yet");
+            System.out.println(ANSI_RED + "No dictionary yet" + ANSI_RESET);
         }
         return found;
     }
@@ -318,12 +329,12 @@ public class Computer {
         FileData data = findFile(fileName);
 
         if (data == null) {
-            System.out.println("No such file: " + fileName);
+            System.out.println(ANSI_RED + "No such file: " + fileName + ANSI_RESET);
             return null;
         }
 
         if (!isReadableType(data.getFileType())) {
-            System.out.println("This computer cannot open ." + data.getFileType() + " files.");
+            System.out.println(ANSI_RED + "This computer cannot open ." + data.getFileType() + " files." + ANSI_RESET);
             return null;
         }
 
@@ -348,7 +359,7 @@ public class Computer {
 
             reader.close();
         } catch (Exception e) {
-            System.out.println("Could not read " + fileName + ".");
+            System.out.println(ANSI_RED +"Could not read " + fileName + "." + ANSI_RESET);
             return null;
         }
 
@@ -370,35 +381,35 @@ public class Computer {
 
     public boolean createFile(String fullName) {
         if (!isPoweredOn) {
-            System.out.println("The computer is off.");
+            System.out.println(ANSI_YELLOW + "The computer is off." + ANSI_RESET);
             return false;
         }
 
         if (!isValidName(fullName)) {
-            System.out.println("File names need an extension, like '.txt' for example");
+            System.out.println(ANSI_RED + "File names need an extension, like '.txt' for example" + ANSI_RESET);
             return false;
         }
 
         if (!isWritableType(extensionOf(fullName))) {
-            System.out.println("Cannot create ." + extensionOf(fullName) + " files. Allowed types: "
-                    + settings.getWritableFileTypes());
+            System.out.println(ANSI_RED + "Cannot create ." + extensionOf(fullName) + " files. Allowed types: "
+                    + settings.getWritableFileTypes() + ANSI_RESET);
             return false;
         }
 
         if (findFile(fullName) != null) {
-            System.out.println("A file called " + fullName + " already exists.");
+            System.out.println(ANSI_RED + "A file called " + fullName + " already exists." + ANSI_RESET);
             return false;
         }
 
         if (calcStorageSpace() >= getStorageSpace()) {
-            System.out.println("Storage is full.");
+            System.out.println(ANSI_RED + "Storage is full." + ANSI_RESET);
             return false;
         }
 
         try {
             new File(storageFolder, fullName).createNewFile();
         } catch (Exception e) {
-            System.out.println("Could not create " + fullName + ".");
+            System.out.println(ANSI_RED + "Could not create " + fullName + "." + ANSI_RESET);
             return false;
         }
 
@@ -410,23 +421,23 @@ public class Computer {
     //opens a text file in the default editor so it can be edited by hand
     public boolean writeFile(String fullName) {
         if (!isPoweredOn) {
-            System.out.println("The computer is off.");
+            System.out.println(ANSI_YELLOW + "The computer is off." + ANSI_RESET);
             return false;
         }
 
         FileData data = findFile(fullName);
 
         if (data == null) {
-            System.out.println("No such file: " + fullName + ". Create it first.");
+            System.out.println(ANSI_RED + "No such file: " + fullName + ". Create it first." + ANSI_RESET);
             return false;
         }
 
         if (!isWritableType(data.getFileType())) {
-            System.out.println("Cannot write to ." + data.getFileType() + " files.");
+            System.out.println(ANSI_RED + "Cannot write to ." + data.getFileType() + " files." + ANSI_RESET);
             return false;
         }
 
-        System.out.println("Opening " + data.getFullName() + " in your editor...");
+        System.out.println("Opening " + data.getFullName() + " in your editor...\n");
         return openForEditing(new File(storageFolder, data.getFullName()));
     }
 
@@ -447,14 +458,14 @@ public class Computer {
 
     public boolean deleteFile(String fullName) {
         if (!isPoweredOn) {
-            System.out.println("The computer is off.");
+            System.out.println(ANSI_YELLOW + "The computer is off." + ANSI_RESET);
             return false;
         }
 
         FileData data = findFile(fullName);
 
         if (data == null) {
-            System.out.println("No such file: " + fullName);
+            System.out.println(ANSI_RED + "No such file: " + fullName + ANSI_RESET);
             return false;
         }
 
@@ -482,7 +493,7 @@ public class Computer {
     //the import rules needed in the validation stage and null means that there is no import error identified
     public String importError(String stagedName) {
         if (!isValidName(stagedName)) {
-            return "the name needs an extension";
+            return "The name needs an extension";
         }
 
         File staged = new File(stagingFolder, stagedName);
@@ -514,7 +525,7 @@ public class Computer {
     //the actual checking process before importing the file into storage
     public boolean checkImport(String stagedName) {
         if (!isPoweredOn) {
-            System.out.println("The computer is off.");
+            System.out.println(ANSI_YELLOW + "The computer is off." + ANSI_RESET);
             return false;
         }
 
@@ -525,21 +536,21 @@ public class Computer {
             return true;
         }
 
-        System.out.println("Cannot import " + stagedName + ": " + problem + ".");
+        System.out.println(ANSI_RED + "Cannot import " + stagedName + ": " + problem + "." + ANSI_RESET);
         return false;
     }
 
     //moves a staged file into Storage and saves its dates
     public boolean importFile(String stagedName) {
         if (!isPoweredOn) {
-            System.out.println("The computer is off.");
+            System.out.println(ANSI_YELLOW + "The computer is off." + ANSI_RESET);
             return false;
         }
 
         String problem = importError(stagedName);
 
         if (problem != null) {
-            System.out.println("Cannot import " + stagedName + ": " + problem + ".");
+            System.out.println(ANSI_RED + "Cannot import " + stagedName + ": " + problem + "." + ANSI_RESET);
             return false;
         }
 
@@ -555,7 +566,7 @@ public class Computer {
     //deletes a file from Validation without importing it
     public boolean discardStaged(String stagedName) {
         if (!isPoweredOn) {
-            System.out.println("The computer is off.");
+            System.out.println(ANSI_YELLOW + "The computer is off." + ANSI_RESET);
             return false;
         }
 
@@ -616,7 +627,7 @@ public class Computer {
             Desktop.getDesktop().open(file);
             return true;
         } catch (Exception e) {
-            System.out.println("Could not open " + file.getName() + " on this computer.");
+            System.out.println(ANSI_RED + "Could not open " + file.getName() + " on this computer." + ANSI_RESET);
             return false;
         }
     }
@@ -638,7 +649,7 @@ public class Computer {
             writer.println(fullName + "|" + added + "|" + modified);
             writer.close();
         } catch (Exception e) {
-            System.out.println("error trying to update the filetimes");
+            System.out.println(ANSI_RED + "error trying to update the filetimes" + ANSI_RESET);
         }
     }
 }

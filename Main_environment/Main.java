@@ -3,6 +3,9 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Main {
+    private static final String ANSI_CYAN = "\u001b[36m";
+    private static final String ANSI_RESET = "\u001b[0m";
+    private static final String ANSI_YELLOW = "\u001b[33m";
 
     private static Computer computer;
     private static Scanner input = new Scanner(System.in);
@@ -68,7 +71,7 @@ public class Main {
 
         else if (command.equals("write")) {
             if (argument.isEmpty()) {
-                System.out.println("usage: write <name>.txt");
+                System.out.println(ANSI_YELLOW + "usage: write <name>.txt" + ANSI_RESET);
             } else if (computer.writeFile(argument)) {
                 System.out.println("Edit and save the file in your editor, then press Enter here when you are done.");
 
@@ -81,21 +84,21 @@ public class Main {
 
         else if (command.equals("read")) {
             if (argument.isEmpty()) {
-                System.out.println("usage: read <file name>");
+                System.out.println(ANSI_YELLOW + "usage: read <file name>" + ANSI_RESET);
             } else {
                 String content = computer.readFile(argument);
 
                 if (content != null) {
-                    System.out.println("====================================");
-                    System.out.println(content);
-                    System.out.println("====================================");
+                    System.out.println("====================================\n");
+                    System.out.println(ANSI_YELLOW + content + ANSI_RESET);
+                    System.out.println("====================================\n");
                 }
             }
         }
 
         else if (command.equals("delete")) {
             if (argument.isEmpty()) {
-                System.out.println("usage: delete <file name>");
+                System.out.println(ANSI_YELLOW + "usage: delete <file name>" + ANSI_RESET);
             } else {
                 computer.deleteFile(argument);
             }
@@ -107,7 +110,7 @@ public class Main {
 
         else if (command.equals("check")) {
             if (argument.isEmpty()) {
-                System.out.println("usage: check <file name>");
+                System.out.println(ANSI_YELLOW + "usage: check <file name>" + ANSI_RESET);
             } else {
                 computer.checkImport(argument);
             }
@@ -115,7 +118,7 @@ public class Main {
 
         else if (command.equals("import")) {
             if (argument.isEmpty()) {
-                System.out.println("usage: import <file name>");
+                System.out.println(ANSI_YELLOW + "usage: import <file name>" + ANSI_RESET);
             } else {
                 computer.importFile(argument);
             }
@@ -123,7 +126,7 @@ public class Main {
 
         else if (command.equals("discard")) {
             if (argument.isEmpty()) {
-                System.out.println("usage: discard <file name>");
+                System.out.println(ANSI_YELLOW + "usage: discard <file name>" + ANSI_RESET);
             } else {
                 computer.discardStaged(argument);
             }
@@ -146,7 +149,7 @@ public class Main {
             Scanner reader = new Scanner(new File("Assets/ASCII_art.txt"));
 
             while (reader.hasNextLine()) {
-                System.out.println(reader.nextLine());
+                System.out.println(ANSI_CYAN + reader.nextLine() + ANSI_RESET);
             }
             reader.close();
         } catch (Exception e) {
@@ -155,6 +158,7 @@ public class Main {
     }
 
     public static void printHelp() {
+        System.out.println(ANSI_YELLOW);
         System.out.println("Commands:");
         System.out.println("  help          - show this list");
         System.out.println("  status        - full report of the computer");
@@ -168,13 +172,14 @@ public class Main {
         System.out.println("  import <file> - move a staged file into storage");
         System.out.println("  discard <file> - delete a staged file");
         System.out.println("  exit          - shut the computer down");
+        System.out.println(ANSI_RESET);
     }
 
     public static void printFiles() {
         ArrayList<Computer.FileData> files = computer.listAllFiles();
 
         if (files.isEmpty()) {
-            System.out.println("(Storage is empty)");
+            System.out.println(ANSI_YELLOW + "(Storage is empty)" + ANSI_RESET);
             return;
         }
 
@@ -187,7 +192,7 @@ public class Main {
         ArrayList<Computer.FileData> files = computer.listStaging();
 
         if (files.isEmpty()) {
-            System.out.println("(Validation is empty - drag a file into that folder first)");
+            System.out.println(ANSI_YELLOW + "(Validation is empty - drag a file into that folder first)" + ANSI_RESET);
             return;
         }
 
@@ -195,8 +200,8 @@ public class Main {
             String problem = computer.importError(file.getFullName());
             String status = (problem == null) ? "ready to import" : problem;
 
-            System.out.println("  " + file.getFullName()
-                    + "  (" + String.format("%.2f", file.getSizeKB()) + " KB)  -> " + status);
+            System.out.println(ANSI_YELLOW + "  " + file.getFullName()
+                    + "  (" + String.format("%.2f", file.getSizeKB()) + " KB)  -> " + status + ANSI_RESET);
         }
     }
 }
