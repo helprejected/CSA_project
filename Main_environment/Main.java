@@ -3,10 +3,10 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Main {
-    private static final String ANSI_CYAN = "\u001b[36m";
+    private static final String ANSI_CYAN = "\u001b[96m";
     private static final String ANSI_RESET = "\u001b[0m";
-    private static final String ANSI_YELLOW = "\u001b[33m";
-
+    private static final String ANSI_YELLOW = "\u001b[93m";
+    
     private static Computer computer;
     private static Scanner input = new Scanner(System.in);
 
@@ -14,8 +14,9 @@ public class Main {
         Computer.Settings settings = Computer.Settings.load("config.txt");
         computer = new Computer(settings);
 
-        printASCII();
         computer.togglePower();
+        printASCII();
+        System.out.println(ANSI_YELLOW + "See command 'help' for command list\n" + ANSI_RESET);
         run();
     }
 
@@ -51,6 +52,10 @@ public class Main {
 
         if (command.equals("help")) {
             printHelp();
+        }
+
+        else if (command.equals("time")) {
+            printTime();
         }
 
         else if (command.equals("status")) {
@@ -161,6 +166,7 @@ public class Main {
         System.out.println(ANSI_YELLOW);
         System.out.println("Commands:");
         System.out.println("  help          - show this list");
+        System.out.println("  time          - displays current time");
         System.out.println("  status        - full report of the computer");
         System.out.println("  list          - list the files in the storage");
         System.out.println("  create <file> - make a new empty .txt file, no need to add an extension");
@@ -173,6 +179,10 @@ public class Main {
         System.out.println("  discard <file> - delete a staged file");
         System.out.println("  exit          - shut the computer down");
         System.out.println(ANSI_RESET);
+    }
+
+    public static void printTime() {
+        System.out.println("Current time: " + computer.getCurrentTime());
     }
 
     public static void printFiles() {

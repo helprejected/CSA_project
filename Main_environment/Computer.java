@@ -25,10 +25,12 @@ public class Computer {
     // Red -> errors
     // Yellow -> startup / close
     // CYAN -> ASCII banner
-    private static final String ANSI_RED = "\u001b[31m";
-    private static final String ANSI_CYAN = "\u001b[36m";
-    private static final String ANSI_YELLOW = "\u001b[33m";
+    private static final String ANSI_RED = "\u001b[91m";
+    private static final String ANSI_CYAN = "\u001b[96m";
+    private static final String ANSI_YELLOW = "\u001b[93m";
     private static final String ANSI_RESET = "\u001b[0m";
+    private static final String ANSI_GREEN = "\u001b[92m";
+
 
 
     //Settings from the config files below here
@@ -197,9 +199,6 @@ public class Computer {
         this.stagingFolder = new File(STAGING_DIR);
         this.dictFile = new File(DICT_FILE);
 
-        storageFolder.mkdirs();
-        stagingFolder.mkdirs();
-
         isPoweredOn = false;
     }
 
@@ -208,10 +207,10 @@ public class Computer {
     public void togglePower() {
         if (isPoweredOn) {
             isPoweredOn = false;
-            System.out.println(ANSI_YELLOW + "Shutting down..." + ANSI_RESET);
+            System.out.println(ANSI_GREEN + "Shutting down..." + ANSI_RESET);
         } else {
             isPoweredOn = true;
-            System.out.println(ANSI_YELLOW + "Booting up " + settings.getComputerName() + "..." + ANSI_RESET);
+            System.out.println(ANSI_GREEN + "Booting up " + settings.getComputerName() + "..." + ANSI_RESET);
         }
     }
 
@@ -261,7 +260,7 @@ public class Computer {
             while (reader.hasNextLine()) {
                 String[] parts = reader.nextLine().split("\\|");
 
-                if (parts.length == 3 && parts[0].trim().equals(fullName)) {
+                if (parts[0].trim().equals(fullName)) {
                     found = parts[1].trim();
                 }
             }
@@ -283,7 +282,7 @@ public class Computer {
             while (reader.hasNextLine()) {
                 String[] parts = reader.nextLine().split("\\|");
 
-                if (parts.length == 3 && parts[0].trim().equals(fullName)) {
+                if (parts[0].trim().equals(fullName)) {
                     found = parts[2].trim();
                 }
             }
